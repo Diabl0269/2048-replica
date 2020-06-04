@@ -27,23 +27,29 @@ export default class Game {
     this.board = board
     const action = this.chooseAction(direction)
     for (let [key, { x, y, value }] of Object.entries(this.board.pieces)) {
-      console.log({key, x, y, value })
       let cursor = { x, y }
       action(cursor)
-      if (!this.board.inRange(cursor)) continue
       while (this.board.inRange(cursor) && !this.board.isOccupied(cursor)) {
         this.board.pieces[key] = { x: cursor.x, y: cursor.y, value }
-        this.board.setPiecesOnTiles()
         action(cursor)
       }
-      // const pieceInContact = this.board.getPiece(cursor)
-      // if (pieceInContact.value === value) this.joinPieces(piece, pieceInContact)
+      if (this.board.inRange(cursor)) {
+        const pieceInContact = this.board.getPiece(cursor)
+        console.log({
+          match: this.board.pieces[pieceInContact].value === value,
+          cont: this.board.pieces[pieceInContact],
+          value
+        })
+        if (this.board.pieces[pieceInContact].value === value) this.joinPieces(key, pieceInContact)
+      }
     }
+    this.board.setPiecesOnTiles()
   }
 
   //finish this func
   joinPieces(movingPiece, inPlacePiece) {
-    inPlacePiece.value *= 2
+    this.board.removePiece(movingPiece)
+    this.board.pieces[inPlacePiece].value *= 2
   }
 
   chooseRandomNumber() {
@@ -59,7 +65,10 @@ export default class Game {
   initGame() {
     this.board.initTiles()
     for (let i = 0; i < initNumTiles; i++) {
-      const { x, y } = this.chooseRandomCoordinates()
+      let cursor = this.chooseRandomCoordinates()
+      while (this.board.getPiece(cursor) && this.board.tiles[cursor.y][cursor.x].value !== 0)
+        cursor = this.chooseRandomCoordinates()
+      const { x, y } = cursor
       this.board.pieces[i] = { x, y, value: initValue }
       this.board.tiles[y][x] = initValue
     }

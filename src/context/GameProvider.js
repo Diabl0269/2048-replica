@@ -8,25 +8,28 @@ const GameProvider = (props) => {
   const [board, setBoard] = useState(game.board)
 
   //Should find another solution for rendernig
-  const [forceRender, setRender] = useState('x')
+  const [forceRender, setRender] = useState(false)
 
   const newGame = () => {
     //Should find another solution for rendernig
-    setRender('y')
+    setRender(!forceRender)
+
     game.initGame()
     setBoard(game.board)
   }
 
-  document.onkeydown = ({ key }) => {
+  const move = (e) => {
+    e.preventDefault()
+    const { key } = e
     if (isMovingKey(key)) {
       game.move(key, board)
-      setBoard(game.board.tiles)
+      console.log(game.board)
+      setBoard(game.board)
       
-      setRender('y')
     }
   }
 
-  return <GameContext.Provider value={{ board: board.tiles, newGame }} {...props} />
+  return <GameContext.Provider value={{ board: board.tiles, newGame, move }} {...props} />
 }
 
 const useGame = () => useContext(GameContext)

@@ -32,7 +32,14 @@ export default class Board {
   }
 
   getPiece({ x, y }) {
-    return this.tiles[y][x]
+    for (let [key, { x: curX, y: curY }] of Object.entries(this.pieces))
+      if (curX === x && curY === y) {
+        return key
+      }
+  }
+
+  removePiece(key) {
+    delete this.pieces[key]
   }
 
   inRange({ x, y }) {

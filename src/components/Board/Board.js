@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react'
-import { View, Text, Alert } from 'react-native'
+import React from 'react'
+import { View, Text } from 'react-native'
 import style from './style'
 import { useGame } from '../../context/GameProvider'
 
 export default () => {
-  const { board } = useGame()
+  const { board, move } = useGame()
 
-  // useEffect(() => {
-  // }, [board])
+  document.onkeydown = move
 
   const DisplayBoard = () => {
     return (
