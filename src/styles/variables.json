@@ -1,0 +1,29 @@
+{
+  "colors": {
+    "off-white": "#F9F6F2",
+
+    "mainBackground": "#FAF8EF",
+    "mainText": "#776E65",
+
+    "dataContainer": "#BBADA0",
+    "dataContainerTitle": "#EEE4DA",
+    "dataContainerText": "#FFFFFF",
+
+    "buttonContainer": "#8F7A66",
+
+    "emptyTile": "#CDC1B4",
+    "tile2": "#EEE4DA",
+    "tile4": "#EDE0C8",
+    "tile8": "#EDE0C8",
+    "tile16": "#F59563",
+    "tile32": "#F67C5F",
+    "tile64": "#F65E3B",
+    "tile128": "#EDCF72",
+    "tile256": "#bdb135",
+    "tile512": "#4f6b1e",
+    "tile1024": "#19365e",
+    "tile2048": "#7d110b"
+
+  },
+  "borderRadiusSize": "1%"
+}

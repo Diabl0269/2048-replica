@@ -1,0 +1,9 @@
+{
+    "gameTitle": "2048",
+    "score": "SCORE",
+    "best": "BEST",
+
+    "subHeaderText": "Join the numbers and get to the",
+    "subHeaderBoldText": "2048 tile!",
+    "newGame": "New Game"
+}

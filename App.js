@@ -1,19 +1,28 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react'
+import { StyleSheet, View, Platform, ScrollView } from 'react-native'
+import { colors } from './src/styles/variables'
+import Header from './src/components/Header/Header'
+import SubHeader from './src/components/SubHeader/SubHeader'
+import Board from './src/components/Board/Board'
+import { GameProvider } from './src/context/GameProvider'
 
-export default function App() {
+export default () => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+    <View style={style.container}>
+      <GameProvider>
+        <Header />
+        <SubHeader />
+        <Board />
+      </GameProvider>
     </View>
-  );
+  )
 }
 
-const styles = StyleSheet.create({
+const style = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.mainBackground,
     alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+    justifyContent: 'center'
+  }
+})
