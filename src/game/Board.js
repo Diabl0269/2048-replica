@@ -31,7 +31,7 @@ export default class Board {
     }
   }
 
-  getPiece({ x, y }) {
+  getPieceKey({ x, y }) {
     for (let [key, { x: curX, y: curY }] of Object.entries(this.pieces))
       if (curX === x && curY === y) {
         return key

@@ -34,12 +34,7 @@ export default class Game {
         action(cursor)
       }
       if (this.board.inRange(cursor)) {
-        const pieceInContact = this.board.getPiece(cursor)
-        console.log({
-          match: this.board.pieces[pieceInContact].value === value,
-          cont: this.board.pieces[pieceInContact],
-          value
-        })
+        const pieceInContact = this.board.getPieceKey(cursor)
         if (this.board.pieces[pieceInContact].value === value) this.joinPieces(key, pieceInContact)
       }
     }
@@ -66,7 +61,7 @@ export default class Game {
     this.board.initTiles()
     for (let i = 0; i < initNumTiles; i++) {
       let cursor = this.chooseRandomCoordinates()
-      while (this.board.getPiece(cursor) && this.board.tiles[cursor.y][cursor.x].value !== 0)
+      while (this.board.getPieceKey(cursor) && this.board.tiles[cursor.y][cursor.x].value !== 0)
         cursor = this.chooseRandomCoordinates()
       const { x, y } = cursor
       this.board.pieces[i] = { x, y, value: initValue }

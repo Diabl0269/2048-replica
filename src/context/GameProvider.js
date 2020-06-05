@@ -23,9 +23,7 @@ const GameProvider = (props) => {
     const { key } = e
     if (isMovingKey(key)) {
       game.move(key, board)
-      console.log(game.board)
       setBoard(game.board)
-      
     }
   }
 
