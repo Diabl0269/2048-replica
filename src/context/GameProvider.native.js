@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext } from 'react'
-import { Platform } from 'react-native'
+import { Alert } from 'react-native'
 import Game from '../game/Game'
-import isMovingKey from '../utils/isMovingKey'
 
 const GameContext = createContext()
 const GameProvider = (props) => {
@@ -18,17 +17,11 @@ const GameProvider = (props) => {
     game.initGame()
     setBoard(game.board)
   }
-  
-  const move = (e) => {
-    e.preventDefault()
-    const { key } = e
-    if (isMovingKey(key)) {
-      game.move(key, board)
-      setBoard(game.board)
-    }
-  }
 
-  document.onkeydown = move
+  const move = (direction) => {
+    game.move(direction, board)
+    setBoard(game.board)
+  }
 
   return <GameContext.Provider value={{ board: board.tiles, newGame, move }} {...props} />
 }

@@ -5,18 +5,19 @@ export default class Game {
   board = new Board()
 
   chooseAction(direction) {
+    console.log(direction)
     let action
     switch (direction) {
-      case 'ArrowLeft':
+      case 'ArrowLeft' || 'SWIPE_LEFT':
         action = (piece) => (piece.x -= 1)
         break
-      case 'ArrowRight':
+      case 'ArrowRight' || 'SWIPE_RIGHT':
         action = (piece) => (piece.x += 1)
         break
-      case 'ArrowUp':
+      case 'ArrowUp' || 'SWIPE_UP':
         action = (piece) => (piece.y -= 1)
         break
-      case 'ArrowDown':
+      case 'ArrowDown' || 'SWIPE_DOWN':
         action = (piece) => (piece.y += 1)
         break
     }

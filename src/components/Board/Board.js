@@ -4,9 +4,7 @@ import style from './style'
 import { useGame } from '../../context/GameProvider'
 
 export default () => {
-  const { board, move } = useGame()
-
-  document.onkeydown = move
+  const { board } = useGame()
 
   const DisplayBoard = () => {
     return (
