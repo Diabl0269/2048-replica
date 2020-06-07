@@ -1,4 +1,6 @@
-import { boardSize } from '../data/gameVariables.json'
+import { boardSize, initValue } from '../data/gameVariables.json'
+import generateRandomId from '../utils/generateRandomId'
+import chooseRandomCoordinates from '../utils/chooseRandomCoordinates'
 
 export default class Board {
   size = boardSize
@@ -18,6 +20,19 @@ export default class Board {
         this.tiles[i][j] = 0
       }
     }
+  }
+
+  addPiece() {
+    const id = generateRandomId()
+    let coord = chooseRandomCoordinates()
+    let { x, y } = coord
+    while (this.tiles[y][x] !== 0) {
+      coord = chooseRandomCoordinates()
+      x = coord.x
+      y = coord.y
+    }
+    this.pieces[id] = { x, y, value: initValue }
+    this.setPiecesOnTiles()
   }
 
   isOccupied({ x, y }) {

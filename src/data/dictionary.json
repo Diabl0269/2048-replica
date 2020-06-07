@@ -5,5 +5,11 @@
 
     "subHeaderText": "Join the numbers and get to the",
     "subHeaderBoldText": "2048 tile!",
-    "newGame": "New Game"
+    "newGame": "New Game",
+
+    "winMessage": "Mazal Tov :)", 
+    "loseMessage": "You lose, but you got experience! :)",
+
+    "setHighScoreError": "Error setting high score, please try again later",
+    "getHighScoreError": "Error getting high score, please try again later"
 }

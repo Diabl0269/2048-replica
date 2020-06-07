@@ -1,23 +1,28 @@
 import Board from './Board'
-import { initValue, initNumTiles } from '../data/gameVariables.json'
+import { initNumTiles, boardSize } from '../data/gameVariables.json'
+import { winMessage, loseMessage } from '../data/dictionary.json'
 
 export default class Game {
   board = new Board()
+  score = 0
 
   chooseAction(direction) {
-    console.log(direction)
     let action
     switch (direction) {
-      case 'ArrowLeft' || 'SWIPE_LEFT':
+      case 'ArrowLeft':
+      case 'SWIPE_LEFT':
         action = (piece) => (piece.x -= 1)
         break
-      case 'ArrowRight' || 'SWIPE_RIGHT':
+      case 'ArrowRight':
+      case 'SWIPE_RIGHT':
         action = (piece) => (piece.x += 1)
         break
-      case 'ArrowUp' || 'SWIPE_UP':
+      case 'ArrowUp':
+      case 'SWIPE_UP':
         action = (piece) => (piece.y -= 1)
         break
-      case 'ArrowDown' || 'SWIPE_DOWN':
+      case 'ArrowDown':
+      case 'SWIPE_DOWN':
         action = (piece) => (piece.y += 1)
         break
     }
@@ -26,6 +31,7 @@ export default class Game {
 
   move(direction, board) {
     this.board = board
+    let message
     const action = this.chooseAction(direction)
     for (let [key, { x, y, value }] of Object.entries(this.board.pieces)) {
       let cursor = { x, y }
@@ -35,38 +41,44 @@ export default class Game {
         action(cursor)
       }
       if (this.board.inRange(cursor)) {
-        const pieceInContact = this.board.getPieceKey(cursor)
-        if (this.board.pieces[pieceInContact].value === value) this.joinPieces(key, pieceInContact)
+        const pieceInContactKey = this.board.getPieceKey(cursor)
+        const pieceInContact = this.board.pieces[pieceInContactKey]
+        if (pieceInContact && pieceInContact.value === value) {
+          this.joinPieces(key, pieceInContactKey)
+          message = this.checkWin(this.board.pieces[pieceInContactKey])
+          if (message) return { message }
+        }
       }
     }
+    if (!message) {
+      message = this.checkLose()
+      if (message) return { message }
+    }
+
     this.board.setPiecesOnTiles()
+    this.board.addPiece()
+    return {}
   }
 
-  //finish this func
+  checkLose() {
+    const tilesLength = boardSize * boardSize
+    if (Object.keys(this.board.pieces).length === tilesLength) return loseMessage
+  }
+
+  checkWin(piece) {
+    if (piece.value === 2048) return winMessage
+  }
+
   joinPieces(movingPiece, inPlacePiece) {
     this.board.removePiece(movingPiece)
     this.board.pieces[inPlacePiece].value *= 2
-  }
-
-  chooseRandomNumber() {
-    return Math.floor(Math.random() * Math.floor(this.board.size))
-  }
-
-  chooseRandomCoordinates() {
-    const x = this.chooseRandomNumber()
-    const y = this.chooseRandomNumber()
-    return { x, y }
+    this.score += this.board.pieces[inPlacePiece].value
   }
 
   initGame() {
     this.board.initTiles()
     for (let i = 0; i < initNumTiles; i++) {
-      let cursor = this.chooseRandomCoordinates()
-      while (this.board.getPieceKey(cursor) && this.board.tiles[cursor.y][cursor.x].value !== 0)
-        cursor = this.chooseRandomCoordinates()
-      const { x, y } = cursor
-      this.board.pieces[i] = { x, y, value: initValue }
-      this.board.tiles[y][x] = initValue
+      this.board.addPiece()
     }
   }
 }
