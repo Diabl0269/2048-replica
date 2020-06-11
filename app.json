@@ -2,7 +2,11 @@
   "expo": {
     "name": "2048-replica",
     "slug": "2048-replica",
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,7 +18,9 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "bundleIdentifier": "com.memyselfandi.experimental2048",
       "supportsTablet": true
@@ -22,6 +28,7 @@
     "android": {
       "package": "com.memyselfandi.experimental2048",
       "versionCode": 1
-    }
+    },
+    "entryPoint": "node_modules/expo/AppEntry.js"
   }
 }

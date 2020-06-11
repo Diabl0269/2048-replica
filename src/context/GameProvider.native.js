@@ -12,6 +12,7 @@ const GameProvider = (props) => {
   const [curScore, setCurScore] = useState(0)
   const [highScore, setHighScore] = useState()
   const [board, setBoard] = useState(game.board)
+  const [forceRender, setForceRender] = useState(0)
 
   useEffect(() => {
     const fetchHighScore = async () => {
@@ -21,13 +22,7 @@ const GameProvider = (props) => {
     fetchHighScore()
   }, [])
 
-  //Should find another solution for rendernig
-  const [forceRender, setRender] = useState(false)
-
   const newGame = () => {
-    //Should find another solution for rendernig
-    setRender(!forceRender)
-
     setCurScore(0)
     game.initGame()
     setBoard(game.board)
@@ -35,7 +30,8 @@ const GameProvider = (props) => {
 
   const move = async (direction) => {
     const { message } = game.move(direction, board)
-    setBoard(game.board)
+    const newBoard = new Game(game.board, game.score)
+    setBoard(newBoard.board)
     setCurScore(game.score)
     if (curScore > highScore) {
       setHighScore(curScore)

@@ -12,6 +12,7 @@ const GameProvider = (props) => {
   const [curScore, setCurScore] = useState(0)
   const [highScore, setHighScore] = useState()
   const [board, setBoard] = useState(game.board)
+  const [forceRender, setForceRender] = useState(0)
 
   useEffect(() => {
     const fetchHighScore = async () => {
@@ -21,25 +22,21 @@ const GameProvider = (props) => {
     fetchHighScore()
   }, [])
 
-  //Should find another solution for rendernig
-  const [forceRender, setRender] = useState(false)
-
   const newGame = () => {
-    //Should find another solution for rendernig
-    setRender(!forceRender)
     setCurScore(0)
     game.initGame()
     setBoard(game.board)
   }
 
   const move = async (e) => {
-    e.preventDefault()
     const { key } = e
     let message
     if (isMovingKey(key)) {
-      const { message: statusMessage} = game.move(key, board)
+      e.preventDefault()
+      const { message: statusMessage } = game.move(key, board)
       message = statusMessage
-      setBoard(game.board)
+      const newBoard = new Game(game.board, game.score)
+      setBoard(newBoard.board)
     }
     setCurScore(game.score)
     if (curScore > highScore) {
@@ -47,6 +44,7 @@ const GameProvider = (props) => {
       await setHighScoreAsync(highScore)
     }
     if (message) alert(message)
+    setForceRender(forceRender + 1)
   }
 
   document.onkeydown = move

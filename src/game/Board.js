@@ -1,6 +1,7 @@
-import { boardSize, initValue } from '../data/gameVariables.json'
+import { boardSize } from '../data/gameVariables.json'
 import generateRandomId from '../utils/generateRandomId'
 import chooseRandomCoordinates from '../utils/chooseRandomCoordinates'
+import Piece from './Piece'
 
 export default class Board {
   size = boardSize
@@ -31,7 +32,8 @@ export default class Board {
       x = coord.x
       y = coord.y
     }
-    this.pieces[id] = { x, y, value: initValue }
+    const initValue = Math.random() < 0.9 ? 2 : 4
+    this.pieces[id] = new Piece({ x, y, value: initValue })
     this.setPiecesOnTiles()
   }
 
@@ -41,12 +43,16 @@ export default class Board {
 
   setPiecesOnTiles() {
     this.initTiles()
-    for (let { x, y, value } of Object.values(this.pieces)) {
-      this.tiles[y][x] = value
+    for (let piece of Object.values(this.pieces)) {
+      this.tiles[piece.y][piece.x] = piece
     }
   }
 
   getPieceKey({ x, y }) {
+    const piece = this.tiles[y][x]
+    console.log(piece)
+    // return this[]
+
     for (let [key, { x: curX, y: curY }] of Object.entries(this.pieces))
       if (curX === x && curY === y) {
         return key
