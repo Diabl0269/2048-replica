@@ -8,8 +8,12 @@ export default class Board {
   tiles = new Array(boardSize)
   pieces = {}
 
-  constructor() {
-    this.initTiles()
+  constructor(oldBoard) {
+    if (oldBoard) {
+      this.size = oldBoard.size
+      this.tiles = oldBoard.tiles
+      this.pieces = oldBoard.pieces
+    } else this.initTiles()
   }
 
   initTiles() {
@@ -49,10 +53,6 @@ export default class Board {
   }
 
   getPieceKey({ x, y }) {
-    const piece = this.tiles[y][x]
-    console.log(piece)
-    // return this[]
-
     for (let [key, { x: curX, y: curY }] of Object.entries(this.pieces))
       if (curX === x && curY === y) {
         return key

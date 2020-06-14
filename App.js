@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, View, Alert } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { colors } from './src/styles/variables'
 import Header from './src/components/Header/Header'
 import SubHeader from './src/components/SubHeader/SubHeader'
@@ -22,9 +22,11 @@ export default () => {
         style={style.container}
         onSwipe={(direction, { dx, dy }) => handleSwipe({ dx, dy })}
       >
-        <Header />
-        <SubHeader />
-        <Board />
+        <View style={style.container}>
+          <Header />
+          <SubHeader />
+          <Board />
+        </View>
       </GestureRecognizer>
     )
   }

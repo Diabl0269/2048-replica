@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react'
 import { Alert } from 'react-native'
 import Game from '../game/Game'
+import initBoardArray from '../utils/initBoardArray';
 import {
   setHighScoreAsync,
   getHighScoreAsync
@@ -12,7 +13,7 @@ const GameProvider = (props) => {
   const [curScore, setCurScore] = useState(0)
   const [highScore, setHighScore] = useState()
   const [board, setBoard] = useState(game.board)
-  const [forceRender, setForceRender] = useState(0)
+  const boardLayoutCoordinates = initBoardArray()
 
   useEffect(() => {
     const fetchHighScore = async () => {
@@ -42,7 +43,7 @@ const GameProvider = (props) => {
 
   return (
     <GameContext.Provider
-      value={{ board: board.tiles, newGame, move, curScore, highScore }}
+      value={{ board: board.tiles, newGame, move, curScore, highScore, boardLayoutCoordinates }}
       {...props}
     />
   )

@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react'
 import Game from '../game/Game'
 import isMovingKey from '../utils/isMovingKey'
+import initBoardArray from '../utils/initBoardArray'
 import {
   setHighScoreAsync,
   getHighScoreAsync
@@ -12,7 +13,13 @@ const GameProvider = (props) => {
   const [curScore, setCurScore] = useState(0)
   const [highScore, setHighScore] = useState()
   const [board, setBoard] = useState(game.board)
-  const [forceRender, setForceRender] = useState(0)
+  const [boardLayoutCoordinates, setBoardLayoutCoordinates] = useState(initBoardArray())
+
+  const setBoardCoordinates = ({ x, y, coordinates }) => {
+    const newBoardCoords = boardLayoutCoordinates
+    newBoardCoords[y][x] = coordinates
+    setBoardLayoutCoordinates(newBoardCoords)
+  }
 
   useEffect(() => {
     const fetchHighScore = async () => {
@@ -44,14 +51,21 @@ const GameProvider = (props) => {
       await setHighScoreAsync(highScore)
     }
     if (message) alert(message)
-    setForceRender(forceRender + 1)
   }
 
-  document.onkeydown = move
+  // document.onkeydown = move
 
   return (
     <GameContext.Provider
-      value={{ board: board.tiles, newGame, move, curScore, highScore }}
+      value={{
+        board: board.tiles,
+        newGame,
+        move,
+        curScore,
+        highScore,
+        boardLayoutCoordinates,
+        setBoardCoordinates
+      }}
       {...props}
     />
   )

@@ -29,7 +29,14 @@ const tile = {
   }),
   margin: hp('1%'),
   borderRadius: wp(borderRadiusSize),
-  justifyContent: 'center'
+  justifyContent: 'center',
+  alignItems: 'center',
+  ...Platform.select({
+    android: {},
+    ios: {},
+    default: { userSelect: 'none' }
+  }),
+  zIndex: 1000
 }
 
 export default StyleSheet.create({
