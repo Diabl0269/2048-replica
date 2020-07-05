@@ -11,12 +11,9 @@ const webTileSize = '17%'
 const webBoardSize = '80%'
 
 const tile = {
-  // '@keyframes appear': {
-  //   from: { opacity: 0 },
-  //   to: { opacity: 1 }
-  // },
-  // animationKeyframes: '$appear',
-  // animationDuration: '5s',
+  opacity: 1,
+  zIndex: 1000,
+
   height: Platform.select({
     ios: hp(mobileTileSize),
     android: hp(mobileTileSize),
@@ -35,12 +32,13 @@ const tile = {
     android: {},
     ios: {},
     default: { userSelect: 'none' }
-  }),
-  zIndex: 1000
+  })
+  // zIndex: 1000
 }
 
 export default StyleSheet.create({
   board: {
+    opacity: 0.99,
     marginTop: hp('3%'),
     marginBottom: hp('3%'),
     padding: hp('1%'),
@@ -75,11 +73,34 @@ export default StyleSheet.create({
     justifyContent: 'space-between'
   },
   emptyTile: {
-    ...tile,
-    backgroundColor: colors.emptyTile
+    // ...tile,
+    zIndex: -1,
+    height: Platform.select({
+      ios: hp(mobileTileSize),
+      android: hp(mobileTileSize),
+      default: hp(webTileSize)
+    }),
+    width: Platform.select({
+      ios: hp(mobileTileSize),
+      android: hp(mobileTileSize),
+      default: hp(webTileSize)
+    }),
+    margin: hp('1%'),
+    borderRadius: wp(borderRadiusSize),
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Platform.select({
+      android: {},
+      ios: {},
+      default: { userSelect: 'none' }
+    }),
+
+    backgroundColor: colors.emptyTile,
+    opacity: 0.99
   },
   tile2: {
     ...tile,
+    zIndex: 1000,
     backgroundColor: colors.tile2
   },
   tile4: {

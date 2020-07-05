@@ -1,11 +1,26 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, Animated, Platform } from 'react-native'
+import { View, Text, Animated, Platform, Easing } from 'react-native'
 import style from './style'
 import { useGame } from '../../context/GameProvider'
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen'
+import calculateMovingAnimationValue from '../../utils/calculateMovingAnimationValue'
 
 export default () => {
-  const { board, boardLayoutCoordinates, setBoardCoordinates } = useGame()
+  const {
+    board,
+    boardLayoutCoordinates,
+    setBoardCoordinates,
+    setPieceMovingAnimation,
+    addAppearAnimation
+  } = useGame()
+
+  // useEffect(() => {
+  //   Animated.parallel(
+  //     appearAnimations.map((animation) =>
+  //       Animated.timing(animation, { toValue: 1, duration: 2000, easing: Easing.ease })
+  //     )
+  //   ).start()
+  //   console.log(appearAnimations)
+  // })
 
   const DisplayBoard = () => {
     return (
@@ -18,6 +33,7 @@ export default () => {
   }
 
   const Row = ({ tilesArr, verticalIndex }) => {
+    //Add y tiles coordinate layout
     const onLayout = ({
       nativeEvent: {
         layout: { y }
@@ -34,9 +50,9 @@ export default () => {
           y: verticalIndex,
           coordinates: boardLayoutCoordinates[verticalIndex][horizontalIndex]
         })
-        boardLayoutCoordinates[verticalIndex][horizontalIndex]
       }
     }
+
     return (
       <View style={style.row} onLayout={onLayout}>
         {tilesArr.map((tile, colIndex) => (
@@ -53,6 +69,7 @@ export default () => {
 
   const Tile = ({ tile, verticalIndex, horizontalIndex }) => {
     const piece = tile
+    //Add x tiles coordinate layout
     const onLayout = ({
       nativeEvent: {
         layout: { x }
@@ -68,59 +85,54 @@ export default () => {
   }
 
   const Piece = ({ piece }) => {
-    const { value } = piece
-    piece.moveTo({ x: 1 })
-    console.log(board)
-    // console.log(boardLayoutCoordinates[piece.y][piece.x])
+    const { value, prevX, prevY, x, y, hasJustAppeared } = piece
+
+    let appearAnimation = 1
     useEffect(() => {
-      // console.log({
-      //   boardLayoutCoordinates,
-      //   pieceCoord: boardLayoutCoordinates[piece.y][piece.x],
-      //   piece
-        // cond:
-        //   boardLayoutCoordinates[piece.y] &&
-        //   boardLayoutCoordinates[piece.y][piece.x] &&
-        //   boardLayoutCoordinates[piece.prevY] &&
-        //   boardLayoutCoordinates[piece.prevY][piece.prevX]
-      // })
-
-      if (
-        boardLayoutCoordinates[piece.y] &&
-        boardLayoutCoordinates[piece.y][piece.x] &&
-        boardLayoutCoordinates[piece.prevY] &&
-        boardLayoutCoordinates[piece.prevY][piece.prevX]
-      ) {
-        const dX =
-          boardLayoutCoordinates[piece.y][piece.x].x -
-          boardLayoutCoordinates[piece.prevY][piece.prevX].x
-        animateMove({ x: dX, y: 0 }).start()
-        console.log('hello')
+      //Add appear animation
+      if (hasJustAppeared) {
+        appearAnimation = new Animated.Value(0)
+        addAppearAnimation(appearAnimation)
       }
-    }, [boardLayoutCoordinates])
+    }, [])
 
-    const animation = new Animated.ValueXY()
+    //Add moving animation
+    let animationX, animationY
 
-    const animateMove = ({ x, y }) => {
-      Animated.spring(animation, { toValue: { x, y } })
+    const { x: xLayOut, y: yLayOut } = boardLayoutCoordinates[y][x]
+
+    if (prevX || prevY) {
+      const { x: prevXLayOut, y: prevYLayOut } = boardLayoutCoordinates[prevY][prevX]
+
+      animationX = calculateMovingAnimationValue(xLayOut, prevXLayOut)
+      animationY = calculateMovingAnimationValue(yLayOut, prevYLayOut)
     }
-    
 
-    // document.onkeydown = () => {
-    //   console.log('hey')
+    const animation = new Animated.ValueXY({
+      x: animationX || 0,
+      y: animationY || 0
+    })
 
-    //   // const movment = { x:  }
-    //   animateMove({ x: hp('19.75%'), y: 0 }).start()
-    // }
+    setPieceMovingAnimation({
+      animation,
+      pieceCoords: { x: piece.x, y: piece.y }
+    })
+
+    // useEffect(() => {
+    //   if (hasJustAppeared)
+    //     Animated.timing(appearAnimation, {
+    //       toValue: 1,
+    //       duration: 100,
+    //       easing: Easing.ease
+    //     }).start()
+    // }, [])
 
     return (
-      <Animated.View
-        style={[style[`tile${value}`], { transform: animation.getTranslateTransform() }]}
-      >
+      <Animated.View style={[style[`tile${value}`], { transform: [{ scale: appearAnimation }] }]}>
         <Text style={style.tileText}>{value}</Text>
       </Animated.View>
     )
   }
-  // console.log(boardLayoutCoordinates)
 
   return (
     <View style={style.board}>

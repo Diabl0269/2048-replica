@@ -2,6 +2,13 @@ import { boardSize } from '../data/gameVariables.json'
 import generateRandomId from '../utils/generateRandomId'
 import chooseRandomCoordinates from '../utils/chooseRandomCoordinates'
 import Piece from './Piece'
+import initBoardArray from '../utils/initBoardArray'
+import chooseRandomInitNumber from './utils/chooseRandomInitNumber'
+import {
+  indexAddition,
+  indexContidion,
+  determineMovment
+} from './utils/determineMovingIndexProperties'
 
 export default class Board {
   size = boardSize
@@ -17,6 +24,7 @@ export default class Board {
   }
 
   initTiles() {
+    this.tiles = initBoardArray()
     for (let i = 0; i < this.size; i++) {
       this.tiles[i] = new Array(this.size)
     }
@@ -28,6 +36,10 @@ export default class Board {
   }
 
   addPiece() {
+    //make sure all other pieces appeared
+    const piecesKeys = Object.keys(this.pieces)
+    piecesKeys.forEach((key) => (this.pieces[key].hasJustAppeared = false))
+
     const id = generateRandomId()
     let coord = chooseRandomCoordinates()
     let { x, y } = coord
@@ -36,7 +48,7 @@ export default class Board {
       x = coord.x
       y = coord.y
     }
-    const initValue = Math.random() < 0.9 ? 2 : 4
+    const initValue = chooseRandomInitNumber()
     this.pieces[id] = new Piece({ x, y, value: initValue })
     this.setPiecesOnTiles()
   }
@@ -53,10 +65,11 @@ export default class Board {
   }
 
   getPieceKey({ x, y }) {
-    for (let [key, { x: curX, y: curY }] of Object.entries(this.pieces))
+    for (let [key, { x: curX, y: curY }] of Object.entries(this.pieces)) {
       if (curX === x && curY === y) {
         return key
       }
+    }
   }
 
   removePiece(key) {
@@ -65,5 +78,61 @@ export default class Board {
 
   inRange({ x, y }) {
     return x >= 0 && x < this.size && y >= 0 && y < this.size
+  }
+
+  joinPieces({ curPieceKey, inPlacePieceKey }) {
+    const { x, y } = this.pieces[inPlacePieceKey]
+    this.pieces[curPieceKey].moveTo({ x, y })
+    this.pieces[curPieceKey].value *= 2
+    this.removePiece(inPlacePieceKey)
+    this.setPiecesOnTiles()
+    return this.pieces[curPieceKey].value
+  }
+
+  movePieces(direction) {
+    let scoreAddition
+    const verticalStartingIndex = direction === 'down' ? this.size - 1 : 0
+    const horizontalStartingIndex = direction === 'right' ? this.size - 1 : 0
+
+    const { movment, axis } = determineMovment(direction)
+
+    for (
+      let rowIndex = verticalStartingIndex;
+      indexContidion(rowIndex, verticalStartingIndex);
+      rowIndex = indexAddition(rowIndex, verticalStartingIndex)
+    )
+      for (
+        let colIndex = horizontalStartingIndex;
+        indexContidion(colIndex, horizontalStartingIndex);
+        colIndex = indexAddition(colIndex, horizontalStartingIndex)
+      ) {
+        const cursor = { x: colIndex, y: rowIndex }
+        if (this.isOccupied(cursor)) {
+          const curPieceKey = this.getPieceKey(cursor)
+          cursor[axis] = movment(cursor[axis])
+          while (this.inRange(cursor))
+            if (this.isOccupied(cursor)) {
+              this.pieces[curPieceKey].recCurLocationIfNotMoved()
+
+              //check if values match, if so we combine them
+              const inPlacePieceKey = this.getPieceKey(cursor)
+
+              if (this.pieces[curPieceKey].value === this.pieces[inPlacePieceKey].value) {
+                scoreAddition += this.joinPieces({ curPieceKey, inPlacePieceKey })
+
+                this.setPiecesOnTiles()
+              }
+              break
+            } else {
+              this.pieces[curPieceKey].recCurLocationIfNotMoved()
+              //move by one in the direction
+              this.pieces[curPieceKey].moveTo(cursor)
+              cursor[axis] = movment(cursor[axis])
+              // console.log({tiles`: this.tiles, pieces: this.pieces})
+              this.setPiecesOnTiles()
+            }
+        }
+      }
+    return scoreAddition
   }
 }

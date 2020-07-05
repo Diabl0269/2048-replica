@@ -6,14 +6,16 @@ import {
   setHighScoreAsync,
   getHighScoreAsync
 } from '../utils/asyncHighScoreStorege/asyncHighScoreStorage'
+import { cloneDeep } from 'lodash'
+import makeParallelAnimations from '../utils/makeParallelAnimations'
 
 const GameContext = createContext()
 const GameProvider = (props) => {
-  const game = new Game()
   const [curScore, setCurScore] = useState(0)
   const [highScore, setHighScore] = useState()
-  const [board, setBoard] = useState(game.board)
+  const [game, setGame] = useState(new Game())
   const [boardLayoutCoordinates, setBoardLayoutCoordinates] = useState(initBoardArray())
+  const [appearAnimations, setAppearAnimations] = useState([])
 
   const setBoardCoordinates = ({ x, y, coordinates }) => {
     const newBoardCoords = boardLayoutCoordinates
@@ -31,40 +33,63 @@ const GameProvider = (props) => {
 
   const newGame = () => {
     setCurScore(0)
-    game.initGame()
-    setBoard(game.board)
+    const newGame = cloneDeep(game)
+    newGame.initGame()
+    setGame(newGame)
+  }
+
+  const setPieceMovingAnimation = ({ pieceCoords: { x, y }, animation }) => {
+    game.board.tiles[y][x].animation = animation
   }
 
   const move = async (e) => {
     const { key } = e
     let message
+
     if (isMovingKey(key)) {
       e.preventDefault()
-      const { message: statusMessage } = game.move(key, board)
+
+      const newGame = cloneDeep(game)
+
+      const { message: statusMessage } = newGame.move(key)
       message = statusMessage
-      const newBoard = new Game(game.board, game.score)
-      setBoard(newBoard.board)
+      newGame.board.tiles = await makeParallelAnimations(newGame.board.tiles)
+      setGame(newGame)
     }
+
     setCurScore(game.score)
     if (curScore > highScore) {
       setHighScore(curScore)
       await setHighScoreAsync(highScore)
     }
+
     if (message) alert(message)
   }
 
-  // document.onkeydown = move
+  const addAppearAnimation = (animation) => {
+    console.log(animation)
+
+    // const newAppearAnimations = cloneDeep(appearAnimations).concat([animation])
+
+    // const newAppearAnimations = appearAnimations.concat([animation])
+    // console.log(newAppearAnimations)
+    setAppearAnimations(1)
+  }
+
+  document.onkeydown = move
 
   return (
     <GameContext.Provider
       value={{
-        board: board.tiles,
+        board: game.board.tiles,
         newGame,
         move,
         curScore,
         highScore,
         boardLayoutCoordinates,
-        setBoardCoordinates
+        setBoardCoordinates,
+        setPieceMovingAnimation,
+        addAppearAnimation
       }}
       {...props}
     />
