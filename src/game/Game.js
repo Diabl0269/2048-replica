@@ -52,11 +52,14 @@ export default class Game {
     this.score += this.board.pieces[movingPiece].value
   }
 
+  //save all pieces in 2d array
+  //save merging pieces as array of 3 pieces, always playing the first, and the others will be for animations
+
   initGame() {
     this.board.pieces = {}
     this.board.initTiles()
     for (let i = 0; i < initNumTiles; i++) {
-      this.board.addPiece()
+      this.board.addPiece(true)
     }
   }
 }

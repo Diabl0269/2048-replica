@@ -5,22 +5,7 @@ import { useGame } from '../../context/GameProvider'
 import calculateMovingAnimationValue from '../../utils/calculateMovingAnimationValue'
 
 export default () => {
-  const {
-    board,
-    boardLayoutCoordinates,
-    setBoardCoordinates,
-    setPieceMovingAnimation,
-    addAppearAnimation
-  } = useGame()
-
-  // useEffect(() => {
-  //   Animated.parallel(
-  //     appearAnimations.map((animation) =>
-  //       Animated.timing(animation, { toValue: 1, duration: 2000, easing: Easing.ease })
-  //     )
-  //   ).start()
-  //   console.log(appearAnimations)
-  // })
+  const { board, boardLayoutCoordinates, setBoardCoordinates } = useGame()
 
   const DisplayBoard = () => {
     return (
@@ -86,49 +71,50 @@ export default () => {
 
   const Piece = ({ piece }) => {
     const { value, prevX, prevY, x, y, hasJustAppeared } = piece
-
-    let appearAnimation = 1
-    useEffect(() => {
-      //Add appear animation
-      if (hasJustAppeared) {
-        appearAnimation = new Animated.Value(0)
-        addAppearAnimation(appearAnimation)
-      }
-    }, [])
+    const animationConfig = {
+      toValue: 1,
+      duration: 200,
+      easing: Easing.ease
+    }
+    //Decide if the piece has just apepared and if so make the animation
+    const appearAnimationValue = new Animated.Value(0)
+    const appearAnimation = hasJustAppeared ? appearAnimationValue : 1
 
     //Add moving animation
     let animationX, animationY
 
     const { x: xLayOut, y: yLayOut } = boardLayoutCoordinates[y][x]
 
-    if (prevX || prevY) {
+    const hasMoved = (prevX && prevX !== x) || (prevY && prevY !== y)
+
+    if (hasMoved) {
       const { x: prevXLayOut, y: prevYLayOut } = boardLayoutCoordinates[prevY][prevX]
 
       animationX = calculateMovingAnimationValue(xLayOut, prevXLayOut)
       animationY = calculateMovingAnimationValue(yLayOut, prevYLayOut)
     }
 
-    const animation = new Animated.ValueXY({
+    const movingAnimation = new Animated.ValueXY({
       x: animationX || 0,
       y: animationY || 0
     })
 
-    setPieceMovingAnimation({
-      animation,
-      pieceCoords: { x: piece.x, y: piece.y }
-    })
+    const animationStyle = hasJustAppeared
+      ? { transform: [{ scale: appearAnimation }] }
+      : hasMoved
+      ? { transform: movingAnimation.getTranslateTransform() }
+      : undefined
 
-    // useEffect(() => {
-    //   if (hasJustAppeared)
-    //     Animated.timing(appearAnimation, {
-    //       toValue: 1,
-    //       duration: 100,
-    //       easing: Easing.ease
-    //     }).start()
-    // }, [])
+    useEffect(() => {
+      console.log(prevX)
+      const animation = hasJustAppeared ? appearAnimation : movingAnimation
+      Animated.timing(animation, animationConfig).start()
+
+      return console.log(prevX)
+    }, [])
 
     return (
-      <Animated.View style={[style[`tile${value}`], { transform: [{ scale: appearAnimation }] }]}>
+      <Animated.View style={[style[`tile${value}`], animationStyle]}>
         <Text style={style.tileText}>{value}</Text>
       </Animated.View>
     )

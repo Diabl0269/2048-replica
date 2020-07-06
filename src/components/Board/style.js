@@ -11,7 +11,7 @@ const webTileSize = '17%'
 const webBoardSize = '80%'
 
 const tile = {
-  opacity: 1,
+  // opacity: 1,
   zIndex: 1000,
 
   height: Platform.select({
@@ -33,12 +33,11 @@ const tile = {
     ios: {},
     default: { userSelect: 'none' }
   })
-  // zIndex: 1000
 }
 
 export default StyleSheet.create({
   board: {
-    opacity: 0.99,
+    // opacity: 0.99,
     marginTop: hp('3%'),
     marginBottom: hp('3%'),
     padding: hp('1%'),
@@ -96,7 +95,7 @@ export default StyleSheet.create({
     }),
 
     backgroundColor: colors.emptyTile,
-    opacity: 0.99
+    // opacity: 0.2
   },
   tile2: {
     ...tile,

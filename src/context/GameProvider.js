@@ -6,8 +6,7 @@ import {
   setHighScoreAsync,
   getHighScoreAsync
 } from '../utils/asyncHighScoreStorege/asyncHighScoreStorage'
-import { cloneDeep } from 'lodash'
-import makeParallelAnimations from '../utils/makeParallelAnimations'
+import { cloneDeep, isEqual } from 'lodash'
 
 const GameContext = createContext()
 const GameProvider = (props) => {
@@ -15,7 +14,6 @@ const GameProvider = (props) => {
   const [highScore, setHighScore] = useState()
   const [game, setGame] = useState(new Game())
   const [boardLayoutCoordinates, setBoardLayoutCoordinates] = useState(initBoardArray())
-  const [appearAnimations, setAppearAnimations] = useState([])
 
   const setBoardCoordinates = ({ x, y, coordinates }) => {
     const newBoardCoords = boardLayoutCoordinates
@@ -38,10 +36,6 @@ const GameProvider = (props) => {
     setGame(newGame)
   }
 
-  const setPieceMovingAnimation = ({ pieceCoords: { x, y }, animation }) => {
-    game.board.tiles[y][x].animation = animation
-  }
-
   const move = async (e) => {
     const { key } = e
     let message
@@ -53,27 +47,20 @@ const GameProvider = (props) => {
 
       const { message: statusMessage } = newGame.move(key)
       message = statusMessage
-      newGame.board.tiles = await makeParallelAnimations(newGame.board.tiles)
-      setGame(newGame)
-    }
+      if (!isEqual(game.board.getPiecesLocations(), newGame.board.getPiecesLocations())) {
 
-    setCurScore(game.score)
-    if (curScore > highScore) {
-      setHighScore(curScore)
-      await setHighScoreAsync(highScore)
+        setGame(newGame)
+        newGame.board.deleteAllPrevLocations()
+
+        setCurScore(game.score)
+        if (curScore > highScore) {
+          setHighScore(curScore)
+          await setHighScoreAsync(highScore)
+        }
+      }
     }
 
     if (message) alert(message)
-  }
-
-  const addAppearAnimation = (animation) => {
-    console.log(animation)
-
-    // const newAppearAnimations = cloneDeep(appearAnimations).concat([animation])
-
-    // const newAppearAnimations = appearAnimations.concat([animation])
-    // console.log(newAppearAnimations)
-    setAppearAnimations(1)
   }
 
   document.onkeydown = move
@@ -87,9 +74,7 @@ const GameProvider = (props) => {
         curScore,
         highScore,
         boardLayoutCoordinates,
-        setBoardCoordinates,
-        setPieceMovingAnimation,
-        addAppearAnimation
+        setBoardCoordinates
       }}
       {...props}
     />

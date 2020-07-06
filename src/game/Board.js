@@ -35,10 +35,12 @@ export default class Board {
     }
   }
 
-  addPiece() {
+  addPiece(newGame) {
     //make sure all other pieces appeared
-    const piecesKeys = Object.keys(this.pieces)
-    piecesKeys.forEach((key) => (this.pieces[key].hasJustAppeared = false))
+    if (!newGame) {
+      const piecesKeys = Object.keys(this.pieces)
+      piecesKeys.forEach((key) => (this.pieces[key].hasJustAppeared = false))
+    }
 
     const id = generateRandomId()
     let coord = chooseRandomCoordinates()
@@ -110,6 +112,7 @@ export default class Board {
         if (this.isOccupied(cursor)) {
           const curPieceKey = this.getPieceKey(cursor)
           cursor[axis] = movment(cursor[axis])
+
           while (this.inRange(cursor))
             if (this.isOccupied(cursor)) {
               this.pieces[curPieceKey].recCurLocationIfNotMoved()
@@ -119,20 +122,33 @@ export default class Board {
 
               if (this.pieces[curPieceKey].value === this.pieces[inPlacePieceKey].value) {
                 scoreAddition += this.joinPieces({ curPieceKey, inPlacePieceKey })
-
-                this.setPiecesOnTiles()
               }
               break
             } else {
               this.pieces[curPieceKey].recCurLocationIfNotMoved()
+
               //move by one in the direction
               this.pieces[curPieceKey].moveTo(cursor)
               cursor[axis] = movment(cursor[axis])
-              // console.log({tiles`: this.tiles, pieces: this.pieces})
-              this.setPiecesOnTiles()
             }
+          this.setPiecesOnTiles()
         }
       }
     return scoreAddition
+  }
+
+  deleteAllPrevLocations() {
+    Object.keys(this.pieces).forEach((key) => {
+      this.pieces[key].deletePrevLocation()
+    })
+  }
+
+  getPiecesLocations() {
+    const locations = []
+    Object.keys(this.pieces).forEach((key) => {
+      const { x, y } = this.pieces[key]
+      locations.push({ x, y })
+    })
+    return locations
   }
 }
