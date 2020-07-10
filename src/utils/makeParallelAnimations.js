@@ -1,20 +1,27 @@
-import { Animated } from 'react-native'
+import { Animated, Easing } from 'react-native'
 
-export default async (tiles) => {
-  const animationsArr = []
-
-  tiles.forEach((row) =>
-    row.forEach((col) => {
-      const { animation, x: curX, y: curY, prevX, prevY } = col
-
-      if ((animation && prevX) || (animation && prevY)) {
-        tiles[curY][curX].deletePrevLocation()
-        const animationDisplay = Animated.timing(animation, { toValue: { x: 0, y: 0 } })
-
-        animationsArr.push(animationDisplay)
-      }
+export default async (animationsArr) => {
+  console.log(animationsArr)
+  const animationDisplay = animationsArr.map((animation) =>
+    Animated.timing(animation, {
+      toValue: 0,
+      duration: 100,
+      easing: Easing.ease
     })
   )
-  await Animated.parallel(animationsArr).start()
-  return tiles
+
+  // tiles.forEach((row) =>
+  //   row.forEach((col) => {
+  //     const { animation, x: curX, y: curY, prevX, prevY } = col
+  //     console.log('heu', animation)
+  //     if ((animation && prevX) || (animation && prevY)) {
+  //       tiles[curY][curX].deletePrevLocation()
+  //       const animationDisplay =
+
+  //       animationsArr.push(animationDisplay)
+  //     }
+  //   })
+  // )
+  await Animated.parallel(animationDisplay).start()
+  // return tiles
 }

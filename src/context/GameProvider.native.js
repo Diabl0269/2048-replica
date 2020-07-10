@@ -6,7 +6,7 @@ import {
   setHighScoreAsync,
   getHighScoreAsync
 } from '../utils/asyncHighScoreStorege/asyncHighScoreStorage'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, isEqual } from 'lodash'
 import makeParallelAnimations from '../utils/makeParallelAnimations'
 
 const GameContext = createContext()
@@ -34,15 +34,25 @@ const GameProvider = (props) => {
   const move = async (direction) => {
     const newGame = cloneDeep(game)
 
+    newGame.board.deleteAllPrevLocations()
     const { message } = newGame.move(direction)
-    newGame.board.tiles = makeParallelAnimations(newGame.board.tiles)
-    setGame(newGame)
-    setCurScore(newGame.score)
-    if (curScore > highScore) {
-      setHighScore(curScore)
-      await setHighScoreAsync(highScore)
+
+    if (!isEqual(game.board.getPiecesLocations(), newGame.board.getPiecesLocations())) {
+      setGame(newGame)
+      setCurScore(newGame.score)
+      if (curScore > highScore) {
+        setHighScore(curScore)
+        await setHighScoreAsync(highScore)
+      }
     }
+
     if (message) Alert.alert(message)
+  }
+
+  const fixMergedPieces = () => {
+    const newGame = cloneDeep(game)
+    newGame.board.fixMergedPieces()
+    setGame(newGame)
   }
 
   const setBoardCoordinates = ({ x, y, coordinates }) => {
@@ -65,7 +75,8 @@ const GameProvider = (props) => {
         highScore,
         boardLayoutCoordinates,
         setBoardCoordinates,
-        setPieceAnimation
+        setPieceAnimation,
+        fixMergedPieces
       }}
       {...props}
     />

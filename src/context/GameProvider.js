@@ -7,6 +7,7 @@ import {
   getHighScoreAsync
 } from '../utils/asyncHighScoreStorege/asyncHighScoreStorage'
 import { cloneDeep, isEqual } from 'lodash'
+import makeParallelAnimations from '../utils/makeParallelAnimations'
 
 const GameContext = createContext()
 const GameProvider = (props) => {
@@ -14,6 +15,10 @@ const GameProvider = (props) => {
   const [highScore, setHighScore] = useState()
   const [game, setGame] = useState(new Game())
   const [boardLayoutCoordinates, setBoardLayoutCoordinates] = useState(initBoardArray())
+  const [isMoving, setIsMoving] = useState(false)
+  // let isMoving = false
+  const animationArr = []
+  const arr = []
 
   const setBoardCoordinates = ({ x, y, coordinates }) => {
     const newBoardCoords = boardLayoutCoordinates
@@ -29,6 +34,10 @@ const GameProvider = (props) => {
     fetchHighScore()
   }, [])
 
+  useEffect(() => {
+    // makeParallelAnimations(animationArr)
+  }, [game])
+
   const newGame = () => {
     setCurScore(0)
     const newGame = cloneDeep(game)
@@ -39,18 +48,17 @@ const GameProvider = (props) => {
   const move = async (e) => {
     const { key } = e
     let message
-
-    if (isMovingKey(key)) {
+    if (isMovingKey(key) && !isMoving) {
       e.preventDefault()
+      setIsMoving(true)
+      // isMoving = true
 
       const newGame = cloneDeep(game)
-
+      newGame.board.deleteAllPrevLocations()
       const { message: statusMessage } = newGame.move(key)
       message = statusMessage
       if (!isEqual(game.board.getPiecesLocations(), newGame.board.getPiecesLocations())) {
-
         setGame(newGame)
-        newGame.board.deleteAllPrevLocations()
 
         setCurScore(game.score)
         if (curScore > highScore) {
@@ -58,9 +66,21 @@ const GameProvider = (props) => {
           await setHighScoreAsync(highScore)
         }
       }
+      // isMoving = false
+      setIsMoving(false)
     }
 
     if (message) alert(message)
+  }
+
+  const fixMergedPieces = () => {
+    const newGame = cloneDeep(game)
+    newGame.board.fixMergedPieces()
+    setGame(newGame)
+  }
+
+  const setPieceAnimation = ({ pieceCoords: { x, y }, animation }) => {
+    animationArr.push(animation)
   }
 
   document.onkeydown = move
@@ -74,7 +94,9 @@ const GameProvider = (props) => {
         curScore,
         highScore,
         boardLayoutCoordinates,
-        setBoardCoordinates
+        setBoardCoordinates,
+        fixMergedPieces,
+        setPieceAnimation
       }}
       {...props}
     />

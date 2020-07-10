@@ -9,6 +9,7 @@ import {
   indexContidion,
   determineMovment
 } from './utils/determineMovingIndexProperties'
+import { cloneDeep } from 'lodash'
 
 export default class Board {
   size = boardSize
@@ -38,8 +39,9 @@ export default class Board {
   addPiece(newGame) {
     //make sure all other pieces appeared
     if (!newGame) {
-      const piecesKeys = Object.keys(this.pieces)
-      piecesKeys.forEach((key) => (this.pieces[key].hasJustAppeared = false))
+      Object.keys(this.pieces).forEach((key) => {
+        if (!this.pieces[key].length) this.pieces[key].hasJustAppeared = false
+      })
     }
 
     const id = generateRandomId()
@@ -62,7 +64,15 @@ export default class Board {
   setPiecesOnTiles() {
     this.initTiles()
     for (let piece of Object.values(this.pieces)) {
-      this.tiles[piece.y][piece.x] = piece
+      //check if piece is an array for merging
+      if (piece.length) {
+        const { x, y } = piece[0]
+        this.tiles[y][x] = piece
+        continue
+      }
+
+      const { x, y } = piece
+      this.tiles[y][x] = piece
     }
   }
 
@@ -80,15 +90,6 @@ export default class Board {
 
   inRange({ x, y }) {
     return x >= 0 && x < this.size && y >= 0 && y < this.size
-  }
-
-  joinPieces({ curPieceKey, inPlacePieceKey }) {
-    const { x, y } = this.pieces[inPlacePieceKey]
-    this.pieces[curPieceKey].moveTo({ x, y })
-    this.pieces[curPieceKey].value *= 2
-    this.removePiece(inPlacePieceKey)
-    this.setPiecesOnTiles()
-    return this.pieces[curPieceKey].value
   }
 
   movePieces(direction) {
@@ -114,22 +115,32 @@ export default class Board {
           cursor[axis] = movment(cursor[axis])
 
           while (this.inRange(cursor))
-            if (this.isOccupied(cursor)) {
+            if (
+              this.isOccupied(cursor) &&
+              this.pieces[curPieceKey] &&
+              !this.pieces[curPieceKey].length
+            ) {
               this.pieces[curPieceKey].recCurLocationIfNotMoved()
 
               //check if values match, if so we combine them
               const inPlacePieceKey = this.getPieceKey(cursor)
-
-              if (this.pieces[curPieceKey].value === this.pieces[inPlacePieceKey].value) {
-                scoreAddition += this.joinPieces({ curPieceKey, inPlacePieceKey })
+              if (
+                this.pieces[curPieceKey] &&
+                this.pieces[inPlacePieceKey] &&
+                this.pieces[curPieceKey].value === this.pieces[inPlacePieceKey].value
+              ) {
+                scoreAddition += this.mergePieces({ curPieceKey, inPlacePieceKey })
               }
               break
             } else {
-              this.pieces[curPieceKey].recCurLocationIfNotMoved()
+              if (this.pieces[curPieceKey] && !this.pieces[curPieceKey].length) {
+                this.pieces[curPieceKey].recCurLocationIfNotMoved()
 
-              //move by one in the direction
-              this.pieces[curPieceKey].moveTo(cursor)
-              cursor[axis] = movment(cursor[axis])
+                //move by one in the direction
+                this.pieces[curPieceKey].moveTo(cursor)
+                cursor[axis] = movment(cursor[axis])
+              }
+              continue
             }
           this.setPiecesOnTiles()
         }
@@ -139,7 +150,9 @@ export default class Board {
 
   deleteAllPrevLocations() {
     Object.keys(this.pieces).forEach((key) => {
-      this.pieces[key].deletePrevLocation()
+      if (!this.pieces[key].length) {
+        this.pieces[key].deletePrevLocation()
+      }
     })
   }
 
@@ -150,5 +163,30 @@ export default class Board {
       locations.push({ x, y })
     })
     return locations
+  }
+
+  mergePieces({ curPieceKey, inPlacePieceKey }) {
+    const { x, y, value } = this.pieces[inPlacePieceKey]
+    this.pieces[curPieceKey].moveTo({ x, y })
+
+    const curPiece = this.pieces[curPieceKey]
+    const inPlacePiece = this.pieces[inPlacePieceKey]
+
+    this.pieces[curPieceKey] = [curPiece, new Piece({ x, y, value: value * 2 }), inPlacePiece]
+    this.removePiece(inPlacePieceKey)
+    return this.pieces[curPieceKey][0].value
+  }
+
+  fixMergedPieces() {
+    //The piece in the first place of the merged pieces array is the new piece
+    this.deleteAllPrevLocations()
+    Object.keys(this.pieces).forEach((key) => {
+      if (this.pieces[key].length) {
+        const piece = cloneDeep(this.pieces[key][1])
+        this.pieces[key] = piece
+      }
+      this.pieces[key].hasJustAppeared = false
+    })
+    this.setPiecesOnTiles()
   }
 }

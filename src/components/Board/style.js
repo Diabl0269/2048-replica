@@ -11,8 +11,7 @@ const webTileSize = '17%'
 const webBoardSize = '80%'
 
 const tile = {
-  // opacity: 1,
-  zIndex: 1000,
+  zIndex: 2,
 
   height: Platform.select({
     ios: hp(mobileTileSize),
@@ -38,6 +37,7 @@ const tile = {
 export default StyleSheet.create({
   board: {
     // opacity: 0.99,
+    zIndex: 0,
     marginTop: hp('3%'),
     marginBottom: hp('3%'),
     padding: hp('1%'),
@@ -73,7 +73,8 @@ export default StyleSheet.create({
   },
   emptyTile: {
     // ...tile,
-    zIndex: -1,
+    // opacity: 0.9,
+    zIndex: 1,
     height: Platform.select({
       ios: hp(mobileTileSize),
       android: hp(mobileTileSize),
@@ -94,8 +95,7 @@ export default StyleSheet.create({
       default: { userSelect: 'none' }
     }),
 
-    backgroundColor: colors.emptyTile,
-    // opacity: 0.2
+    backgroundColor: colors.emptyTile
   },
   tile2: {
     ...tile,

@@ -25,7 +25,6 @@ export default class Game {
     const message = this.checkGameStatus()
 
     if (!isEqual(beforeMovmentTiles, this.board.tiles)) this.board.addPiece()
-    this.board.setPiecesOnTiles()
     return { message }
   }
 
@@ -43,17 +42,6 @@ export default class Game {
     if (!message) message = this.checkLose()
     return message
   }
-
-  joinPieces(movingPiece, inPlacePiece, { x, y }) {
-    const { value } = this.board.pieces[movingPiece]
-
-    this.board.removePiece(inPlacePiece)
-    this.board.pieces[movingPiece] = { x, y, value: value * 2 }
-    this.score += this.board.pieces[movingPiece].value
-  }
-
-  //save all pieces in 2d array
-  //save merging pieces as array of 3 pieces, always playing the first, and the others will be for animations
 
   initGame() {
     this.board.pieces = {}
